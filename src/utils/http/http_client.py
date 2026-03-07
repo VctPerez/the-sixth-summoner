@@ -5,7 +5,6 @@ import httpx
 from httpx import HTTPStatusError
 
 from utils.http.http_method import HttpMethod
-from utils.logging import setup_logging
 
 http_logger = logging.getLogger("http_client")
 http_logger.setLevel(logging.DEBUG)
@@ -26,7 +25,7 @@ class HttpClient:
             body: dict[str, Any] | None = None,
             headers: dict[str, str] | None = None,
             **kwargs
-    ) -> dict[str, Any]:
+    ) -> dict | list:
 
         url = f"{self.base_url}{path.format(**path_params)}" if path_params else f"{self.base_url}{path}"
 
