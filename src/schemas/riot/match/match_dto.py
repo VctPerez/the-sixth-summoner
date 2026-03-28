@@ -1,3 +1,4 @@
+from .match_timeline_dto import MatchTimelineDto
 from ..base import RiotBaseDto
 
 
@@ -184,3 +185,4 @@ class MatchInfoDto(RiotBaseDto):
 class MatchDto(RiotBaseDto):
     metadata: MetadataDto
     info: MatchInfoDto
+    timeline: MatchTimelineDto | None = None

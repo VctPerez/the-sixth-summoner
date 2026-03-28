@@ -4,6 +4,7 @@ import pytest
 
 from src.repositories.riot.riot_repository import RiotRepository
 from src.schemas.riot.accounts import AccountDto
+from src.schemas.riot.ml import RiotMlDatasetDto
 from src.services.riot.riot_service import RiotService
 
 
@@ -44,3 +45,26 @@ class TestRiotService:
         # Assert
         assert result == expected_ids
         mock_repository.get_match_ids_by_puuid.assert_called_once_with(puuid, 20)
+
+    async def test_build_ml_dataset_from_puuid(self, service, mock_repository):
+        expected_dataset = RiotMlDatasetDto(feature_names=["kills"], rows=[])
+        service.ml_service.build_dataset_from_puuid = AsyncMock(return_value=expected_dataset)
+
+        result = await service.build_ml_dataset_from_puuid("123", count=10)
+
+        assert result == expected_dataset
+        service.ml_service.build_dataset_from_puuid.assert_called_once_with(puuid="123", count=10)
+
+    async def test_build_framework_dataset_from_puuid(self, service):
+        strategy = object()
+        expected_training_data = {"x": [], "y": []}
+        service.ml_service.build_framework_dataset_from_puuid = AsyncMock(return_value=expected_training_data)
+
+        result = await service.build_framework_dataset_from_puuid("123", strategy=strategy, count=5)
+
+        assert result == expected_training_data
+        service.ml_service.build_framework_dataset_from_puuid.assert_called_once_with(
+            puuid="123",
+            strategy=strategy,
+            count=5,
+        )

@@ -1,10 +1,8 @@
-from pydantic import BaseModel, ConfigDict
+from src.schemas.riot.base import RiotBaseDto
 
 
-class StatusBaseDto(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True
-    )
+class StatusBaseDto(RiotBaseDto):
+    pass
 
 
 class ContentDto(StatusBaseDto):

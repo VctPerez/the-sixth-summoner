@@ -1,18 +1,23 @@
-from typing import List
+from typing import Any, List
 
 from src.repositories.riot.riot_repository import RiotRepository
 from src.schemas.riot.accounts import AccountDto
 from src.schemas.riot.champion_mastery import ChampionMasteryDto
 from src.schemas.riot.league import LeagueEntryDto
+from src.schemas.riot.league.league_parameters import Division, Queue, Tier
 from src.schemas.riot.match import MatchDto, MatchTimelineDto
+from src.schemas.riot.ml import RiotMlDatasetDto
 from src.schemas.riot.spectator import CurrentGameInfoDto
 from src.schemas.riot.status import PlatformDataDto
 from src.schemas.riot.summoner import SummonerDto
+from src.services.riot.ml.riot_ml_service import RiotMlService
+from src.services.riot.ml.strategies.base_strategy import FrameworkStrategy
 
 
 class RiotService:
     def __init__(self, repository: RiotRepository):
         self.repository = repository
+        self.ml_service = RiotMlService(repository=repository)
 
     async def get_account_by_riot_id(self, game_name: str, tag_line: str) -> AccountDto:
         return await self.repository.get_account_by_riot_id(game_name, tag_line)
@@ -30,7 +35,11 @@ class RiotService:
         return await self.repository.get_champion_mastery_entry_by_champion_id(puuid, champion_id)
 
     async def get_all_league_entries(self, queue: str, tier: str, division: str) -> List[LeagueEntryDto]:
-        return await self.repository.get_all_league_entries(queue, tier, division)
+        return await self.repository.get_all_league_entries(
+            queue=Queue(queue),
+            tier=Tier(tier),
+            division=Division(division),
+        )
 
     async def get_platform_status(self) -> PlatformDataDto:
         return await self.repository.get_platform_status()
@@ -52,3 +61,18 @@ class RiotService:
 
     async def get_summoner_by_access_token(self, access_token: str) -> SummonerDto:
         return await self.repository.get_summoner_by_access_token(access_token)
+
+    async def build_ml_dataset_from_puuid(self, puuid: str, count: int = 20) -> RiotMlDatasetDto:
+        return await self.ml_service.build_dataset_from_puuid(puuid=puuid, count=count)
+
+    async def build_framework_dataset_from_puuid(
+            self,
+            puuid: str,
+            strategy: FrameworkStrategy,
+            count: int = 20,
+    ) -> Any:
+        return await self.ml_service.build_framework_dataset_from_puuid(
+            puuid=puuid,
+            strategy=strategy,
+            count=count,
+        )

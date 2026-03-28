@@ -65,6 +65,17 @@ class TestRiotRepository:
             }
         }
         mock_provider.get_match_details = AsyncMock(return_value=api_response)
+        mock_provider.get_match_timeline_by_match_id = AsyncMock(return_value={
+            "metadata": {
+                "dataVersion": "2",
+                "matchId": "EUW1_123456",
+                "participants": ["p1", "p2"],
+            },
+            "info": {
+                "frameInterval": 60000,
+                "frames": [],
+            },
+        })
 
         # Act
         result = await repository.get_match_details(match_id)
@@ -74,3 +85,4 @@ class TestRiotRepository:
         assert result.metadata.match_id == "EUW1_123456"
         assert result.info.game_id == 123456
         mock_provider.get_match_details.assert_called_once_with(match_id)
+        mock_provider.get_match_timeline_by_match_id.assert_called_once_with(match_id)
